@@ -1,0 +1,39 @@
+- name: get stat of /var/web/sites/default
+  stat:
+    path: /var/web/sites/default
+  register: dir
+
+- name: make sites/default writable
+  shell: chmod -R 755 /var/web/sites/default
+  tags: core-make
+  when: dir.stat.isdir is defined and dir.stat.isdir
+
+- name: build drupal core
+  shell: /usr/local/composer/vendor/bin/drush make /var/source/drupal-org-core.make -y
+  sudo_user: "{{ dork_user }}"
+  args:
+    chdir: /var/web
+  tags: core-make
+
+- name: build profile dependencies
+  shell: /usr/local/composer/vendor/bin/drush make --no-core /var/source/drupal-org.make -y
+  sudo_user: "{{ dork_user }}"
+  args:
+    chdir: /var/web
+  tags: profile-make
+
+- name: get profile name
+  shell: echo ${$(echo *.profile)%.*}
+  args:
+    chdir: /var/source
+    executable: /usr/bin/zsh
+  register: profilename_out
+
+- set_fact:
+    profile: "{{ profilename_out.stdout_lines[0] }}"
+
+- name: link profile directory
+  file:
+    src: /var/source
+    dest: /var/web/profiles/{{ profile }}
+    state: link

@@ -1,0 +1,10 @@
+dependencies:
+- dork.drupal
+
+dork:
+  matches:
+  - "drupal-org.make"
+  - "drupal-org-core.make"
+  tags:
+  - "drupal-org.make": ["profile-make", "features", "update"]
+  - "drupal-org-core.make": ["core-make", "features", "update"]
