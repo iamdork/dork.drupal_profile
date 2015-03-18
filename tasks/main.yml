@@ -37,3 +37,10 @@
     src: /var/source
     dest: /var/web/profiles/{{ profile }}
     state: link
+
+- debug: msg="trigger sync build"
+  notify: sync build
+  tags:
+  - core-make
+  - profile-make
+  changed_when: true
